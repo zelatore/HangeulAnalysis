@@ -75,76 +75,95 @@ public class KeyTrackingService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         String eventTypeStr = AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType());
-        //Log.i("AccessibilityService","-------------------------------");
-        //if(eventTypeStr.equals("TYPE_WINDOWS_CHANGED") || eventTypeStr.equals("TYPE_WINDOW_CONTENT_CHANGED")) {
+        /** 화면뷰 리소스 구하기: 전화 앱 **/
+        /*
         if(eventTypeStr.equals("TYPE_VIEW_CLICKED")) {
             Log.i("AccessibilityService","-------------------------------");
             Log.i("AccessibilityService",eventTypeStr+".........");
             Log.i("AccessibilityService",accessibilityEvent.getText()+".........");
             AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
-            trackingViewResources(accessibilityNodeInfo);
-
-
-
+            trackingViewResources1(accessibilityNodeInfo);
             Log.i("AccessibilityService","-------------------------------");
         }
+        */
 
-
-        /*
+        /** 키 입력 분석 **/
+        Log.i("AccessibilityService","-------------------------------");
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED"))    isLocked = true;
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED") && isLocked) {
             isLocked = false;
             return;
         }
-        */
 
-//        if(accessibilityEvent.getPackageName() != null) {
-//            String packageName = accessibilityEvent.getPackageName().toString();
-//            Log.w("AccessibilityService", "package name: "+ packageName);
-//
-//            AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
-//            trackingViewResources(accessibilityNodeInfo);
-//
-//
-////            if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED")) {
-////                Log.i("AccessibilityService", eventTypeStr + ".........");
-////                AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
-////                accessibilityNodeInfo = trackingViewResources(accessibilityNodeInfo);
-////                if(accessibilityNodeInfo == null) {
-////                    Log.w("AccessibilityService", "트래킹 끝");
-////                }
-////            }
-////            if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED"))
-////                Log.i("AccessibilityService",eventTypeStr+".........");
-//
-//        }
-        //Log.i("AccessibilityService","-------------------------------");
+        if(accessibilityEvent.getPackageName() != null) {
+            String packageName = accessibilityEvent.getPackageName().toString();
+            Log.w("AccessibilityService", "package name: "+ packageName);
+
+            if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED") || eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED")) {
+                Log.i("AccessibilityService", eventTypeStr + ".........");
+                AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
+                trackingViewResources2(accessibilityNodeInfo);
+            }
+            if(eventTypeStr.equals("TYPE_VIEW_FOCUSED")) {
+                Log.i("AccessibilityService", eventTypeStr + ".........");
+                AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
+                trackingViewResources3(accessibilityNodeInfo);
+            }
+        }
+        Log.i("AccessibilityService","-------------------------------");
+        
     }
 
 
-
-
-    private AccessibilityNodeInfo  trackingViewResources(AccessibilityNodeInfo parentView) {
+    private AccessibilityNodeInfo  trackingViewResources1(AccessibilityNodeInfo parentView) {
         if(parentView == null)  return null;
         if(parentView.getViewIdResourceName() != null)
             Log.w("AccessibilityService", "className: "+parentView.getClassName()+", resourceName: "+parentView.getViewIdResourceName()+", text: "+parentView.getText());
 
-        //if(String.valueOf(parentView.getClassName()).contains("EditText"))
-        //    Log.w("AccessibilityService", "className: "+parentView.getClassName()+",     input type: "+parentView.getInputType());
-
-        //if(parentView.getText() != null && parentView.getText().length() > 0 && (String.valueOf(parentView.getClassName()).contains("EditText")))
-        //if((String.valueOf(parentView.getClassName()).contains("EditText")))
-        //    getCurrentInputChar(parentView.getText());
-
         for (int i=0; i< parentView.getChildCount(); i++) {
             AccessibilityNodeInfo child = parentView.getChild(i);
-            if(child != null)   trackingViewResources(child);
+            if(child != null)   trackingViewResources1(child);
             else                return null;
         }
 
-        //Log.w("AccessibilityService", "함수 끝");
         return null;
     }
+
+    private AccessibilityNodeInfo  trackingViewResources2(AccessibilityNodeInfo parentView) {
+        if(parentView == null)  return null;
+
+        if(parentView.getText() != null && parentView.getText().length() >= 0 && (String.valueOf(parentView.getClassName()).contains("EditText"))) {
+            Log.e("AA", "text: "+parentView.getText());
+            getCurrentInputChar(parentView.getText());
+        }
+
+        for (int i=0; i< parentView.getChildCount(); i++) {
+            AccessibilityNodeInfo child = parentView.getChild(i);
+            if(child != null)   trackingViewResources2(child);
+            else                return null;
+        }
+
+        return null;
+    }
+
+    private AccessibilityNodeInfo  trackingViewResources3(AccessibilityNodeInfo parentView) {
+        if(parentView == null)  return null;
+
+        if(parentView.getText() != null && parentView.getText().length() >= 0 && (String.valueOf(parentView.getClassName()).contains("EditText"))) {
+            Log.e("AA", "focused text: "+parentView.getText());
+            totalStr = parentView.getText().toString();
+        }
+
+        for (int i=0; i< parentView.getChildCount(); i++) {
+            AccessibilityNodeInfo child = parentView.getChild(i);
+            if(child != null)   trackingViewResources2(child);
+            else                return null;
+        }
+
+        return null;
+    }
+
+
 
     private void getCurrentInputChar(CharSequence str) {
         if(str == null && totalStr.length() >0) {
@@ -174,7 +193,6 @@ public class KeyTrackingService extends AccessibilityService {
         }
 
         totalStr = currentStr;
-        isLocked = false;
     }
 
     private String getInputCharType(String str) {
@@ -183,6 +201,8 @@ public class KeyTrackingService extends AccessibilityService {
         else if(str.matches("^[0-9]*$"))                    return "숫자";
         else                                                        return "특수문자";
     }
+
+
 //    private void trackingDetailedEvent(AccessibilityNodeInfo info) {
 //        if(info == null) return;
 //
@@ -204,37 +224,5 @@ public class KeyTrackingService extends AccessibilityService {
 //        }
 //
 //    }
-
-
-
-
-
-    public AccessibilityNodeInfo findTextViewNode(AccessibilityNodeInfo nodeInfo) {
-
-        //I highly recommend leaving this line in! You never know when the screen content will
-        //invalidate a node you're about to work on, or when a parents child will suddenly be gone!
-        //Not doing this safety check is very dangerous!
-        if (nodeInfo == null) return null;
-
-        Log.w("AA", nodeInfo.toString());
-
-        //Notice that we're searching for the TextView's simple name!
-        //This allows us to find AppCompat versions of TextView as well
-        //as 3rd party devs well names subclasses... though with perhaps
-        //a few poorly named unintended stragglers!
-        if (nodeInfo.getClassName().toString().contains(EditText.class.getSimpleName())) {
-            return nodeInfo;
-        }
-
-        //Do other work!
-
-        for (int i = 0; i < nodeInfo.getChildCount(); i++) {
-            AccessibilityNodeInfo result = findTextViewNode(nodeInfo.getChild(i));
-
-            if (result != null) return result;
-        }
-
-        return null;
-    }
 
 }
