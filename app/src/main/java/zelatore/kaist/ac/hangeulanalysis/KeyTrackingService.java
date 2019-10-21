@@ -2,13 +2,22 @@ package zelatore.kaist.ac.hangeulanalysis;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.inputmethodservice.Keyboard;
+import android.inputmethodservice.KeyboardView;
+import android.provider.Settings;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -100,6 +109,8 @@ public class KeyTrackingService extends AccessibilityService {
             Log.w("AccessibilityService", "package name: "+ packageName);
 
             if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED") || eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED")) {
+
+         
                 Log.i("AccessibilityService", eventTypeStr + ".........");
                 AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
                 trackingViewResources2(accessibilityNodeInfo);
@@ -111,7 +122,7 @@ public class KeyTrackingService extends AccessibilityService {
             }
         }
         Log.i("AccessibilityService","-------------------------------");
-        
+
     }
 
 
@@ -133,7 +144,8 @@ public class KeyTrackingService extends AccessibilityService {
         if(parentView == null)  return null;
 
         if(parentView.getText() != null && parentView.getText().length() >= 0 && (String.valueOf(parentView.getClassName()).contains("EditText"))) {
-            Log.e("AA", "text: "+parentView.getText());
+
+            Log.e("AA", "text: "+parentView.getText() + parentView.getInputType());
             getCurrentInputChar(parentView.getText());
         }
 
@@ -145,6 +157,7 @@ public class KeyTrackingService extends AccessibilityService {
 
         return null;
     }
+
 
     private AccessibilityNodeInfo  trackingViewResources3(AccessibilityNodeInfo parentView) {
         if(parentView == null)  return null;
