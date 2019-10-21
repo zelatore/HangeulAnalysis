@@ -2,11 +2,15 @@ package zelatore.kaist.ac.hangeulanalysis;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -18,55 +22,103 @@ public class KeyTrackingService extends AccessibilityService {
     @Override
     public void onInterrupt() {}
 
+//    @Override
+//    public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
+//        String eventTypeStr = AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType());
+//        Log.i("AccessibilityService","-------------------------------");
+//        Log.i("AccessibilityService",eventTypeStr+".........");
+//        if(accessibilityEvent.getPackageName() != null) {
+//            String packageName = accessibilityEvent.getPackageName().toString();
+//            Log.i("AccessibilityService", "package name: "+ packageName);
+//        }
+//
+////        final AccessibilityNodeInfo textNodeInfo = findTextViewNode(getRootInActiveWindow());
+////        if (textNodeInfo == null) return;
+////
+////        Rect rect = new Rect();
+////        textNodeInfo.getBoundsInScreen(rect);
+////        Log.i("AA", "The TextView Node: " + rect.toString());
+//
+//
+//        List<AccessibilityWindowInfo> windows = getWindows();
+//        Log.i("AA", String.format("Windows (%d):", windows.size()));
+//        for (AccessibilityWindowInfo window : windows) {
+//            Log.i("AA", String.format("window: %s", window.toString()));
+//        }
+//
+//        /* Dump the view hierarchy */
+//        dumpNode(getRootInActiveWindow(), 0);
+//
+//
+//        Log.i("AccessibilityService","-------------------------------");
+//    }
+//
+//    private void dumpNode(AccessibilityNodeInfo node, int indent) {
+//        if (node == null) {
+//            Log.e("AA", "node is null (stopping iteration)");
+//            return;
+//        }
+//
+//        String indentStr = new String(new char[indent * 2]).replace('\0', ' ');
+//        Log.w("AA", String.format("%s NODE: %s", indentStr, node.toString()));
+//        for (int i = 0; i < node.getChildCount(); i++) {
+//            dumpNode(node.getChild(i), indent + 1);
+//        }
+//        /* NOTE: Not sure if this is really required. Documentation is unclear. */
+//        node.recycle();
+//    }
+
+
+
+
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         String eventTypeStr = AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType());
-        Log.i("AccessibilityService","-------------------------------");
-        //Log.i("AccessibilityService",eventTypeStr+".........");
+        //Log.i("AccessibilityService","-------------------------------");
+        //if(eventTypeStr.equals("TYPE_WINDOWS_CHANGED") || eventTypeStr.equals("TYPE_WINDOW_CONTENT_CHANGED")) {
+        if(eventTypeStr.equals("TYPE_VIEW_CLICKED")) {
+            Log.i("AccessibilityService","-------------------------------");
+            Log.i("AccessibilityService",eventTypeStr+".........");
+            Log.i("AccessibilityService",accessibilityEvent.getText()+".........");
+            AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
+            trackingViewResources(accessibilityNodeInfo);
 
+
+
+            Log.i("AccessibilityService","-------------------------------");
+        }
+
+
+        /*
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED"))    isLocked = true;
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED") && isLocked) {
             isLocked = false;
             return;
         }
+        */
 
-        if(accessibilityEvent.getPackageName() != null) {
-            String packageName = accessibilityEvent.getPackageName().toString();
-            Log.w("AccessibilityService", "package name: "+ packageName);
-
-            if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED")) {
-                Log.i("AccessibilityService", eventTypeStr + ".........");
-                AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
-                accessibilityNodeInfo = trackingViewResources(accessibilityNodeInfo);
-                if(accessibilityNodeInfo == null) {
-                    Log.w("AccessibilityService", "트래킹 끝");
-                }
-            }
-            if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED"))
-                Log.i("AccessibilityService",eventTypeStr+".........");
-
-            //if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED") || eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED")) {
-//            if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED")) {
-//                //Log.i("AccessibilityService","-------------------------------");
-//                //Log.i("AccessibilityService",eventTypeStr+".........");
-//                //Log.w("AccessibilityService", "package name: "+ packageName);
-//                AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
-//                trackingViewResources(accessibilityNodeInfo);
+//        if(accessibilityEvent.getPackageName() != null) {
+//            String packageName = accessibilityEvent.getPackageName().toString();
+//            Log.w("AccessibilityService", "package name: "+ packageName);
 //
-//                //Log.i("AccessibilityService","-------------------------------");
-//            }
-//            else if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED") && !isLocked) {
-//                //Log.i("AccessibilityService","-------------------------------");
-//                //Log.i("AccessibilityService",eventTypeStr+".........");
-//                //Log.w("AccessibilityService", "package name: "+ packageName);
-//                AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
-//                trackingViewResources(accessibilityNodeInfo);
+//            AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
+//            trackingViewResources(accessibilityNodeInfo);
 //
-//                //Log.i("AccessibilityService","-------------------------------");
-//            }
-
-        }
-        Log.i("AccessibilityService","-------------------------------");
+//
+////            if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED")) {
+////                Log.i("AccessibilityService", eventTypeStr + ".........");
+////                AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
+////                accessibilityNodeInfo = trackingViewResources(accessibilityNodeInfo);
+////                if(accessibilityNodeInfo == null) {
+////                    Log.w("AccessibilityService", "트래킹 끝");
+////                }
+////            }
+////            if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED"))
+////                Log.i("AccessibilityService",eventTypeStr+".........");
+//
+//        }
+        //Log.i("AccessibilityService","-------------------------------");
     }
 
 
@@ -74,6 +126,11 @@ public class KeyTrackingService extends AccessibilityService {
 
     private AccessibilityNodeInfo  trackingViewResources(AccessibilityNodeInfo parentView) {
         if(parentView == null)  return null;
+        if(parentView.getViewIdResourceName() != null)
+            Log.w("AccessibilityService", "className: "+parentView.getClassName()+", resourceName: "+parentView.getViewIdResourceName()+", text: "+parentView.getText());
+
+        //if(String.valueOf(parentView.getClassName()).contains("EditText"))
+        //    Log.w("AccessibilityService", "className: "+parentView.getClassName()+",     input type: "+parentView.getInputType());
 
         //if(parentView.getText() != null && parentView.getText().length() > 0 && (String.valueOf(parentView.getClassName()).contains("EditText")))
         //if((String.valueOf(parentView.getClassName()).contains("EditText")))
@@ -85,7 +142,7 @@ public class KeyTrackingService extends AccessibilityService {
             else                return null;
         }
 
-        Log.w("AccessibilityService", "함수 끝");
+        //Log.w("AccessibilityService", "함수 끝");
         return null;
     }
 
@@ -147,5 +204,37 @@ public class KeyTrackingService extends AccessibilityService {
 //        }
 //
 //    }
+
+
+
+
+
+    public AccessibilityNodeInfo findTextViewNode(AccessibilityNodeInfo nodeInfo) {
+
+        //I highly recommend leaving this line in! You never know when the screen content will
+        //invalidate a node you're about to work on, or when a parents child will suddenly be gone!
+        //Not doing this safety check is very dangerous!
+        if (nodeInfo == null) return null;
+
+        Log.w("AA", nodeInfo.toString());
+
+        //Notice that we're searching for the TextView's simple name!
+        //This allows us to find AppCompat versions of TextView as well
+        //as 3rd party devs well names subclasses... though with perhaps
+        //a few poorly named unintended stragglers!
+        if (nodeInfo.getClassName().toString().contains(EditText.class.getSimpleName())) {
+            return nodeInfo;
+        }
+
+        //Do other work!
+
+        for (int i = 0; i < nodeInfo.getChildCount(); i++) {
+            AccessibilityNodeInfo result = findTextViewNode(nodeInfo.getChild(i));
+
+            if (result != null) return result;
+        }
+
+        return null;
+    }
 
 }
