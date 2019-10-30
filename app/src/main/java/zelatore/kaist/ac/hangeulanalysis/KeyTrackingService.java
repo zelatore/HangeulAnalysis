@@ -3,6 +3,8 @@ package zelatore.kaist.ac.hangeulanalysis;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.inputmethodservice.Keyboard;
@@ -27,7 +29,7 @@ import java.util.List;
 public class KeyTrackingService extends AccessibilityService {
     private String totalStr="";
     private boolean isLocked = false;
-
+    private String prevAppPackageName="";
     @Override
     public void onInterrupt() {}
 
@@ -79,24 +81,34 @@ public class KeyTrackingService extends AccessibilityService {
 
 
 
-
-
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         String eventTypeStr = AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType());
-        /** 화면뷰 리소스 구하기: 전화 앱 **/
-        /*
-        if(eventTypeStr.equals("TYPE_VIEW_CLICKED")) {
+        /**앱 패키지 전환 트래킹 **/
+        if(eventTypeStr.equals("TYPE_WINDOW_STATE_CHANGED")) {
             Log.i("AccessibilityService","-------------------------------");
-            Log.i("AccessibilityService",eventTypeStr+".........");
-            Log.i("AccessibilityService",accessibilityEvent.getText()+".........");
-            AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
-            trackingViewResources1(accessibilityNodeInfo);
+            String currentAppPackageName = accessibilityEvent.getPackageName().toString();
+            if(!currentAppPackageName.equals(prevAppPackageName)) {
+                Log.w("AccessibilityService","Current Package: "+getAppNameByPackageName(getApplicationContext(), currentAppPackageName));
+                prevAppPackageName = currentAppPackageName;
+            }
             Log.i("AccessibilityService","-------------------------------");
         }
-        */
+
+
+        /** 화면뷰 리소스 구하기: 전화 앱 **/
+//        if(eventTypeStr.equals("TYPE_VIEW_CLICKED")) {
+//            Log.i("AccessibilityService","-------------------------------");
+//            Log.i("AccessibilityService",eventTypeStr+".........");
+//            Log.i("AccessibilityService",accessibilityEvent.getText()+".........");
+//            AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
+//            trackingViewResources1(accessibilityNodeInfo);
+//            Log.i("AccessibilityService","-------------------------------");
+//        }
+
 
         /** 키 입력 분석 **/
+        /*
         Log.i("AccessibilityService","-------------------------------");
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED"))    isLocked = true;
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED") && isLocked) {
@@ -122,14 +134,16 @@ public class KeyTrackingService extends AccessibilityService {
             }
         }
         Log.i("AccessibilityService","-------------------------------");
-
+        */
     }
 
 
     private AccessibilityNodeInfo  trackingViewResources1(AccessibilityNodeInfo parentView) {
         if(parentView == null)  return null;
-        if(parentView.getViewIdResourceName() != null)
-            Log.w("AccessibilityService", "className: "+parentView.getClassName()+", resourceName: "+parentView.getViewIdResourceName()+", text: "+parentView.getText());
+        if(parentView.getViewIdResourceName() != null) {
+            Log.w("AccessibilityService", "className: " + parentView.getClassName());
+            Log.w("AccessibilityService", "resourceName: " + parentView.getViewIdResourceName() + ", text: " + parentView.getText());
+        }
 
         for (int i=0; i< parentView.getChildCount(); i++) {
             AccessibilityNodeInfo child = parentView.getChild(i);
@@ -237,5 +251,14 @@ public class KeyTrackingService extends AccessibilityService {
 //        }
 //
 //    }
+
+    /** 앱 패키지명 --> 앱 이름 추출 함수 **/
+    public static String getAppNameByPackageName(Context context, String packageName) {
+        final PackageManager pm = context.getPackageManager();
+        try {
+            String tmpName = String.valueOf(pm.getApplicationLabel(pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA)));
+            return tmpName;
+        } catch (PackageManager.NameNotFoundException e) {return null;}
+    }
 
 }
