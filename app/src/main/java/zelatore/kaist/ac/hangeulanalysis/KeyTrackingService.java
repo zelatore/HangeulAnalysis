@@ -86,13 +86,13 @@ public class KeyTrackingService extends AccessibilityService {
         String eventTypeStr = AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType());
         /**앱 패키지 전환 트래킹 **/
         if(eventTypeStr.equals("TYPE_WINDOW_STATE_CHANGED")) {
-            Log.i("AccessibilityService","-------------------------------");
+            //Log.i("AccessibilityService","-------------------------------");
             String currentAppPackageName = accessibilityEvent.getPackageName().toString();
             if(!currentAppPackageName.equals(prevAppPackageName)) {
-                Log.w("AccessibilityService","Current Package: "+getAppNameByPackageName(getApplicationContext(), currentAppPackageName));
+                //Log.w("AccessibilityService","Current Package: "+getAppNameByPackageName(getApplicationContext(), currentAppPackageName));
                 prevAppPackageName = currentAppPackageName;
             }
-            Log.i("AccessibilityService","-------------------------------");
+            //Log.i("AccessibilityService","-------------------------------");
         }
 
 
@@ -108,7 +108,6 @@ public class KeyTrackingService extends AccessibilityService {
 
 
         /** 키 입력 분석 **/
-        /*
         Log.i("AccessibilityService","-------------------------------");
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED"))    isLocked = true;
         if(eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED") && isLocked) {
@@ -122,7 +121,6 @@ public class KeyTrackingService extends AccessibilityService {
 
             if(eventTypeStr.equals("TYPE_VIEW_TEXT_CHANGED") || eventTypeStr.equals("TYPE_VIEW_TEXT_SELECTION_CHANGED")) {
 
-         
                 Log.i("AccessibilityService", eventTypeStr + ".........");
                 AccessibilityNodeInfo accessibilityNodeInfo = accessibilityEvent.getSource();
                 trackingViewResources2(accessibilityNodeInfo);
@@ -134,7 +132,7 @@ public class KeyTrackingService extends AccessibilityService {
             }
         }
         Log.i("AccessibilityService","-------------------------------");
-        */
+
     }
 
 
