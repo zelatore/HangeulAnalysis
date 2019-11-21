@@ -2,7 +2,7 @@ package zelatore.kaist.ac.hangeulanalysis;
 
 import android.util.Log;
 
-public class Hangul {
+public class AnalyzeHangeul {
     
                                     // ㄱ             ㄲ            ㄴ               ㄷ            ㄸ             ㄹ     
                                     // ㅁ             ㅂ            ㅃ               ㅅ            ㅆ             ㅇ     

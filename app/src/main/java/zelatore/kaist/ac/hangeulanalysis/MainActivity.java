@@ -2,6 +2,7 @@ package zelatore.kaist.ac.hangeulanalysis;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.UiAutomation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     EditText editText;
@@ -38,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
 //                Log.w("AA", "--------------------------------------------------");
 //                String currentStr = editText.getText().toString();
 //                Log.w("AA", "현재 문자열: "+currentStr);
-//                String decomposeCurrentStr = Hangul.hangulToJaso(currentStr);
+//                String decomposeCurrentStr = AnalyzeHangeul.hangulToJaso(currentStr);
 //                //Log.w("AA", "Current 문자 분해: "+decomposeCurrentStr);
 //
-//                String decomposeTotalStr = Hangul.hangulToJaso(totalStr);
+//                String decomposeTotalStr = AnalyzeHangeul.hangulToJaso(totalStr);
 //                //Log.w("AA", "Total 문자 분해: "+decomposeTotalStr);
 //
 //                /* 사용자가 새로운 키를 입력한 경우 */
@@ -92,4 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
         return false;
     }
+
+
+
 }
